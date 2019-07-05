@@ -77,7 +77,7 @@ class DbOperations
                 $student['id'] = $id; 
                 $student['email']=$email; 
                 $student['name'] = $name; 
-                array_push($students, $user);
+                array_push($students, $student);
             }             
             return $students; 
         }
