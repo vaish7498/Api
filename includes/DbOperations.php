@@ -82,13 +82,42 @@ class DbOperations
             return $students; 
         }
  
-
+            
+            public function updateUser($name,$email,$id){
+                $stmt=$this->con->prepare("UPDATE student SET name=?,email=? where id=?");
+                $stmt->bind_param("ssi",$name,$email,$id);
+                if($stmt->execute())
+                return true;
+                else return false;
+                }
+                public function updatePassword($currentpassword, $newpassword,$email){
+                    $hashed_password = $this->getUsersPasswordByEmail($email); 
+                    if(password_verify($currentpassword, $hashed_password)){
+                        $hash_password=password_hash($newpassword,PASSWORD_DEFAULT);
+                $stmt=$this->con->prepare("UPDATE student set password=? where email=?");
+                $stmt->bind_param("ss",$hash_password,$email);
+                if($stmt->execute())
+                return PASSWORD_CHANGED;
+                else return PASSWORD_DO_NOT_MATCH;
+                    }
+                    else{
+                        return PASSWORD_DO_NOT_MATCH;
+                    }
+                
+                }
+                public function deleteUser($id){
+                    $stmt=$this->con->prepare("DELETE from student where id=?");
+                    $stmt->bind_param("i",$id);
+                    if($stmt->execute())
+                    return true;
+                    else return false;
+                }
 
 
         /*
             The Read Operation
-            This function reads a specified user from database
-        */
+            This function reads a specified user from database*/
+        
         public function getUserByEmail($email){
             $stmt = $this->con->prepare("SELECT id, name, email FROM student WHERE email = ?");
             $stmt->bind_param("s", $email);
@@ -101,6 +130,7 @@ class DbOperations
             $user['email']=$email; 
             return $user; 
         }
+
 
 
 
