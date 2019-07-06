@@ -13,6 +13,7 @@ endpoint: createuser
 parameters: name, email, password
 method: POST
  */
+//CREATE USER
 $app->post('/createuser', function (Request $request, Response $response) {
     if (!haveEmptyParameters(array('name', 'email', 'password'), $request,$response)) {
         $request_data = $request->getParsedBody();
@@ -53,7 +54,7 @@ $app->post('/createuser', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 });
-
+//DISPLAY ALL USERS
 $app->get('/allusers', function (Request $request, Response $response) {
     $db = new DbOperations;
     $users = $db->getAllUsers();
@@ -65,7 +66,7 @@ $app->get('/allusers', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
-
+//USER LOGIN
 $app->post('/userlogin', function (Request $request, Response $response) {
     if (!haveEmptyParameters(array('email', 'password'),$request, $response)) {
         $request_data = $request->getParsedBody();
@@ -107,14 +108,15 @@ $app->post('/userlogin', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 });
-/*UPDATING USERS*/
+//UPDATING USERS
 $app->put('/updateuser/{id}',function(Request $request, Response $response,array $args){ //app for 
     $id=$args['id'];
-    if(!haveEmptyParameters(array('name','email'),$request,$response)){
+    if(!haveEmptyParameters(array('name','email','id'),$request,$response)){
     
     $request_data=$request->getParsedBody();
     $name=$request_data['name'];
     $email=$request_data['email'];
+    $id=$request_data['id'];
     //$id=$request_data['id'];
     
     $db=new DbOperations;
@@ -151,9 +153,9 @@ $app->put('/updateuser/{id}',function(Request $request, Response $response,array
     
     });
     
-    /*CHange password*/
+/*CHange password*/
 
-    $app->put('/updatepassword',function(Request $request, Response $response){
+$app->put('/updatepassword',function(Request $request, Response $response){
     
         if(!haveEmptyParameters(array('currentpassword','newpassword','email'),$request,$response)){
            
@@ -182,7 +184,7 @@ $app->put('/updateuser/{id}',function(Request $request, Response $response,array
             }else if($result==PASSWORD_NOT_CHANGED){
                 $response_data=array();
                 $response_data['error']=true;
-                $response_data['message']='some error ocurred';
+                $response_data['message']='password does\'t match';
                 $response->write(json_encode($response_data));
                 return $response
             ->withHeader('Content-type','application/json; charset=utf-8')
@@ -196,9 +198,9 @@ $app->put('/updateuser/{id}',function(Request $request, Response $response,array
     
     });
     
-    //FOR DELETING A USER
+//FOR DELETING A USER
     
-    $app->delete('/deleteuser/{id}',function(Request $request, Response $response,array $args){
+$app->delete('/deleteuser/{id}',function(Request $request, Response $response,array $args){
     $id=$args['id'];
     $db=new DbOperations;
     $response_data=array();
@@ -212,8 +214,187 @@ $app->put('/updateuser/{id}',function(Request $request, Response $response,array
         ->withHeader('Content-type','application/json; charset=utf-8')
          ->withStatus(200);
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+/********************************************************TABLE PROFILE */
+  
+
+
+
+
+
+//create profile
+$app->post('/createprofile', function (Request $request, Response $response) {
+    if (!haveEmptyParameters(array('name', 'email', 'gender','age'), $request,$response)) {
+        $request_data = $request->getParsedBody();
+        $email = $request_data['email'];
+        $gender = $request_data['gender'];
+        $age = $request_data['age'];
+        $name = $request_data['name'];
+       
+        $db = new DbOperations;
+        $result = $db->createProfile($name, $email, $gender,$age);
+
+        if ($result == PROFILE_CREATED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'User PRofile created successfully';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == PROFILE_FAILURE) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Some error occurred';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } 
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+/*$app->post('/profilepic', function (Request $request, Response $response) {
+    if (!haveEmptyParameters(array('image'), $request,$response)) {
+        $request_data = $request->getParsedBody();
+       
+        $image = $request_data['image'];
+       
+        $db = new DbOperations;
+        $result = $db->profilePic($image);
+        if ($result == IMAGE_UPLOADED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'User PRofile created successfully';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == FAILURE) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Some error occurred';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } 
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});*/
+//display profile details
+$app->get('/showprofile', function (Request $request, Response $response) {
+
     
-    //FOR CHECKING EMPTY PARAMETERS
+    if(!haveEmptyParameters(array('name'),$request,$response)){
+    
+        $request_data=$request->getParsedBody();
+        $name=$request_data['name'];
+        //$email=$request_data['email'];
+        //$id=$request_data['id'];
+        
+        $db=new DbOperations;
+        if($db->showProfile($name)){
+        $students=$db->showProfile($name);
+        $response_data=array();
+        $response_data['error']=false;
+        $response_data['user']=$students;
+        /*$user=$db->getUserByEmail($email);
+        $response_data['user']=$user;*/
+        
+        $response->write(json_encode($response_data));
+        
+        return $response
+                    ->withHeader('Content-type','application/json; charset=utf-8')
+                    ->withStatus(200);
+        }
+        else{
+            $response_data=array();
+            $response_data['error']=true;
+            $response_data['user']='failure';
+            /*$user=$db->getUserByEmail($email);
+            $response_data['user']=$user;*/
+            
+            $response->write(json_encode($response_data));
+            
+            return $response
+                        ->withHeader('Content-type','application/json; charset=utf-8')
+                        ->withStatus(200);
+        }
+    } return $response
+    ->withHeader('Content-type','application/json; charset=utf-8')
+    ->withStatus(200);
+});
+// UPDATE PROFILE
+
+$app->put('/updateprofile/{name}',function(Request $request, Response $response,array $args){ //app for 
+    $name=$args['name'];
+    if(!haveEmptyParameters(array('email','gender','age','name'),$request,$response)){
+    $request_data=$request->getParsedBody();
+    $name=$request_data['name'];
+    $email=$request_data['email'];
+    $gender=$request_data['gender'];
+    $age=$request_data['age'];
+    //$id=$request_data['id'];
+    
+    $db=new DbOperations;
+    if($db->updateProfile($email,$gender,$age,$name)){
+    
+    $response_data=array();
+    $response_data['error']=false;
+    $response_data['message']='User Update Successful';
+    $user=$db->getUserByEmail2($email);
+    $response_data['user']=$user;
+    
+    $response->write(json_encode($response_data));
+    
+    return $response
+                ->withHeader('Content-type','application/json; charset=utf-8')
+                ->withStatus(200);
+    }else{
+        $response_data=array();
+    $response_data['error']=true;
+    $response_data['message']='Please try again ';
+    $user=$db->getUserByEmail($email);
+    $response_data['user']=$user;
+    
+    $response->write(json_encode($response_data));
+    
+    return $response
+                ->withHeader('Content-type','application/json; charset=utf-8')
+                ->withStatus(422);
+    }
+    }
+    return $response
+    ->withHeader('Content-type','application/json; charset=utf-8')
+     ->withStatus(200);
+    
+    });
+
+
+
+
+
+
+
+//FOR CHECKING EMPTY PARAMETERS
 function haveEmptyParameters($required_params,$request, $response)
 {
     $error = false;
