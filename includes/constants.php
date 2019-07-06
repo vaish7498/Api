@@ -16,3 +16,11 @@ define('USER_PASSWORD_DO_NOT_MATCH', 203);
 define('PASSWORD_CHANGED',301);
 define('PASSWORD_DO_NOT_MATCH',302);
 define('PASSWORD_NOT_CHANGED',303);
+
+
+
+define('PROFILE_CREATED',401);
+define('PROFILE_FAILURE',402);
+//define('PROFILE_EXISTS',403);          
+define('IMAGE_UPLOADED',501);
+define('FAILURE',502);
