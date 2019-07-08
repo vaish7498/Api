@@ -15,14 +15,14 @@ method: POST
  */
 //CREATE USER
 $app->post('/createuser', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('name', 'email', 'password'), $request,$response)) {
+    if (!haveEmptyParameters(array('name', 'collegecode', 'password'), $request,$response)) {
         $request_data = $request->getParsedBody();
-        $email = $request_data['email'];
+        $collegecode = $request_data['collegecode'];
         $password = $request_data['password'];
         $name = $request_data['name'];
-        $hash_password = password_hash($password, PASSWORD_DEFAULT);
+        //$hash_password = password_hash($password, PASSWORD_DEFAULT);
         $db = new DbOperations;
-        $result = $db->createUser($name, $email, $hash_password);
+        $result = $db->createUser($name, $collegecode, $password);
 
         if ($result == USER_CREATED) {
             $message = array();
@@ -68,16 +68,16 @@ $app->get('/allusers', function (Request $request, Response $response) {
 });
 //USER LOGIN
 $app->post('/userlogin', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('email', 'password'),$request, $response)) {
+    if (!haveEmptyParameters(array('collegecode', 'password'),$request, $response)) {
         $request_data = $request->getParsedBody();
-        $email = $request_data['email'];
+        $collegecode = $request_data['collegecode'];
         $password = $request_data['password'];
 
         $db = new DbOperations;
-        $result = $db->userLogin($email, $password);
+        $result = $db->userLogin($collegecode, $password);
         if ($result == USER_AUTHENTICATED) {
 
-            $user = $db->getUserByEmail($email);
+            $user = $db->getUserByCode($collegecode);
             $response_data = array();
             $response_data['error'] = false;
             $response_data['message'] = 'Login Successful';
@@ -109,9 +109,9 @@ $app->post('/userlogin', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 //UPDATING USERS
-$app->put('/updateuser/{id}',function(Request $request, Response $response,array $args){ //app for 
-    $id=$args['id'];
-    if(!haveEmptyParameters(array('name','email','id'),$request,$response)){
+/*$app->put('/updateuser/{collegecode}',function(Request $request, Response $response,array $args){ //app for 
+    $collegecode=$args['collegecode'];
+    if(!haveEmptyParameters(array('name','collegecode'),$request,$response)){
     
     $request_data=$request->getParsedBody();
     $name=$request_data['name'];
@@ -155,16 +155,16 @@ $app->put('/updateuser/{id}',function(Request $request, Response $response,array
     
 /*CHange password*/
 
-$app->put('/updatepassword',function(Request $request, Response $response){
+/*$app->put('/updatepassword',function(Request $request, Response $response){
     
-        if(!haveEmptyParameters(array('currentpassword','newpassword','email'),$request,$response)){
+        if(!haveEmptyParameters(array('currentpassword','newpassword','collegecode'),$request,$response)){
            
             $request_data=$request->getParsedBody();
             $currentpassword=$request_data['currentpassword'];
             $newpassword=$request_data['newpassword'];
-            $email=$request_data['email'];
+            $collegecode=$request_data['collegecode'];
             $db=new DbOperations;
-            $result=$db->updatePassword($currentpassword,$newpassword,$email);
+            $result=$db->updatePassword($currentpassword,$newpassword,$collegecode);
             if($result==PASSWORD_CHANGED){
             $response_data=array();
             $response_data['error']=false;
@@ -269,36 +269,6 @@ $app->post('/createprofile', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
-/*$app->post('/profilepic', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('image'), $request,$response)) {
-        $request_data = $request->getParsedBody();
-       
-        $image = $request_data['image'];
-       
-        $db = new DbOperations;
-        $result = $db->profilePic($image);
-        if ($result == IMAGE_UPLOADED) {
-            $message = array();
-            $message['error'] = false;
-            $message['message'] = 'User PRofile created successfully';
-            $response->write(json_encode($message));
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(201);
-        } else if ($result == FAILURE) {
-            $message = array();
-            $message['error'] = true;
-            $message['message'] = 'Some error occurred';
-            $response->write(json_encode($message));
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(422);
-        } 
-    }
-    return $response
-        ->withHeader('Content-type', 'application/json')
-        ->withStatus(422);
-});*/
 //display profile details
 $app->get('/showprofile', function (Request $request, Response $response) {
 
@@ -342,6 +312,8 @@ $app->get('/showprofile', function (Request $request, Response $response) {
     ->withHeader('Content-type','application/json; charset=utf-8')
     ->withStatus(200);
 });
+
+
 // UPDATE PROFILE
 
 $app->put('/updateprofile/{name}',function(Request $request, Response $response,array $args){ //app for 
@@ -390,12 +362,56 @@ $app->put('/updateprofile/{name}',function(Request $request, Response $response,
 
 
 
+///////////// TABLE COLLEGE
+
+
+$app->post('/createcollege', function (Request $request, Response $response) {
+    if (!haveEmptyParameters(array('name','coursetype','coursename','fee','location'), $request,$response)) {
+        $request_data = $request->getParsedBody();
+        $coursetype = $request_data['coursetype'];
+        $coursename = $request_data['coursename'];
+        $name = $request_data['name'];
+        $fee = $request_data['fee'];
+        $location = $request_data['location'];
+        //$hash_password = password_hash($password, PASSWORD_DEFAULT);
+        $db = new DbOperations;
+        $result = $db->createCollege($name, $coursetype, $coursename,$fee,$location);
+
+        if ($result == COLLEGE_CREATED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'College created successfully';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == FAILURE) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Some error occurred';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+
+
+
+
+
 
 
 
 
 //FOR CHECKING EMPTY PARAMETERS
-function haveEmptyParameters($required_params,$request, $response)
+
+    function haveEmptyParameters($required_params,$request, $response)
 {
     $error = false;
     $error_params = '';

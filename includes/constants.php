@@ -23,4 +23,7 @@ define('PROFILE_CREATED',401);
 define('PROFILE_FAILURE',402);
 //define('PROFILE_EXISTS',403);          
 define('IMAGE_UPLOADED',501);
-define('FAILURE',502);
+//define('FAILURE',502);
+
+define('COLLEGE_CREATED',601);
+define('FAILURE',601);
