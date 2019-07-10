@@ -236,15 +236,15 @@ $app->delete('/deleteuser/{id}',function(Request $request, Response $response,ar
 
 //create profile
 $app->post('/createprofile', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('name', 'email', 'gender','age'), $request,$response)) {
+    if (!haveEmptyParameters(array('name','phone', 'email', 'gender','age'), $request,$response)) {
         $request_data = $request->getParsedBody();
         $email = $request_data['email'];
         $gender = $request_data['gender'];
         $age = $request_data['age'];
         $name = $request_data['name'];
-       
+        $phone = $request_data['phone'];
         $db = new DbOperations;
-        $result = $db->createProfile($name, $email, $gender,$age);
+        $result = $db->createProfile($name,$phone, $email, $gender,$age);
 
         if ($result == PROFILE_CREATED) {
             $message = array();

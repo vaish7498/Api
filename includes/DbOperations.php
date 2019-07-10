@@ -134,50 +134,29 @@ class DbOperations
 /****************** TABLE PROFILE*****************************************************/ 
  //create profile details
 
- public function createProfile($name, $email, $gender,$age)
+ public function createProfile($name,$phone, $email, $gender,$age)
     {
         //if (!$this->isEmailExist($email)) {
-            $stmt = $this->con->prepare("INSERT INTO profile (name, email, gender,age) VALUES (?, ?, ?,?)");
-            $stmt->bind_param("sssi", $name, $email, $gender,$age);
+            $stmt = $this->con->prepare("INSERT INTO profile (name,phone, email, gender,age) VALUES (?,?, ?, ?,?)");
+            $stmt->bind_param("ssssi", $name,$phone,$email, $gender,$age);
             if ($stmt->execute()) {
                 return PROFILE_CREATED;
             } else {
                 return PROFILE_FAILURE;
             }
         }
-       // return PROFILE_EXISTS;
-    
-       //profile pic
-      /* public function profilePic($image){
-        
-        if(is_uploaded_file($_FILES['user_image']['tmp_name'])){
 
-            $tmp_file=$_FILES['user_image']['tmp_name'];
-            $img_name=$_FILES['user_image']['name'];
-            $upload_dir='image/'.$img_name;
-            $stmt = $this->con->prepare("INSERT INTO profilepic (image) VALUES (?)");
-            $stmt->bind_param("b", $image);
-            if(move_uploaded_file($tmp_file,$upload_dir)&& $stmt->execute()){
-                return IMAGE_UPLOADED;
-            }
-         else{
-             return FAILURE;
-         }
-        }
-       }*/
 
 public function showProfile($name){
-    $stmt = $this->con->prepare("SELECT name,email,gender,age FROM profile where name=?;");
+    $stmt = $this->con->prepare("SELECT name,phone FROM profile where name=?;");
     $stmt->bind_param("s", $name);
             $stmt->execute(); 
-            $stmt->bind_result($name,$email,$gender,$age);
+            $stmt->bind_result($name,$phone);
             $students = array(); 
             while($stmt->fetch()){ 
                 $student = array(); 
-                $student['email']=$email; 
+                $student['phone']=$phone; 
                 $student['name'] = $name; 
-                $student['gender'] = $gender; 
-                $student['age'] = $age; 
                 array_push($students, $student);
             }             
             return $students; 
