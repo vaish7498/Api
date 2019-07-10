@@ -18,7 +18,7 @@ class DbOperations
      */
     public function createUser($name, $collegecode, $password)
     {
-        if (!$this->isCodeExist($collegecode)) {
+        if (!$this->isCodeExist($password)) {
             $stmt = $this->con->prepare("INSERT INTO student (name, collegecode, password) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $name, $collegecode, $password);
             if ($stmt->execute()) {
@@ -37,7 +37,7 @@ class DbOperations
             to authenticate the user accordingly    
         */
         public function userLogin($collegecode, $password){
-            if($this->isCodeExist($collegecode)){
+            if($this->isCodeExist($password)){
                 $stored_password = $this->getUsersPasswordByCode($collegecode); 
                 if($password==$stored_password){
                     return USER_AUTHENTICATED;
@@ -117,9 +117,9 @@ class DbOperations
 
         /*
             This function reads a specified user from database*/
-      public function getUserByCode($collegecode){
-            $stmt = $this->con->prepare("SELECT name, collegecode FROM student WHERE collegecode = ?");
-            $stmt->bind_param("s", $collegecode);
+      public function getUserByCode($password){
+            $stmt = $this->con->prepare("SELECT name, collegecode FROM student WHERE password = ?");
+            $stmt->bind_param("s", $password);
             $stmt->execute(); 
             $stmt->bind_result($name, $collegecode);
             $stmt->fetch(); 
@@ -183,10 +183,10 @@ public function getUserByEmail2($email){
     return $user; 
 }
 
-    private function isCodeExist($collegecode)
+    private function isCodeExist($password)
     {
-        $stmt = $this->con->prepare("SELECT collegecode FROM student WHERE collegecode = ?");
-        $stmt->bind_param("s", $collegecode);
+        $stmt = $this->con->prepare("SELECT password FROM student WHERE password = ?");
+        $stmt->bind_param("s", $password);
         $stmt->execute();
         $stmt->store_result();
         return $stmt->num_rows > 0;

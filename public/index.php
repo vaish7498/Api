@@ -77,7 +77,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
         $result = $db->userLogin($collegecode, $password);
         if ($result == USER_AUTHENTICATED) {
 
-            $user = $db->getUserByCode($collegecode);
+            $user = $db->getUserByCode($password);
             $response_data = array();
             $response_data['error'] = false;
             $response_data['message'] = 'Login Successful';
