@@ -15,14 +15,15 @@ method: POST
  */
 //CREATE USER
 $app->post('/createuser', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('name', 'collegecode', 'password'), $request,$response)) {
+    if (!haveEmptyParameters(array('name', 'collegecode','number', 'password'), $request,$response)) {
         $request_data = $request->getParsedBody();
         $collegecode = $request_data['collegecode'];
         $password = $request_data['password'];
         $name = $request_data['name'];
-        //$hash_password = password_hash($password, PASSWORD_DEFAULT);
+        $number = $request_data['number'];
+        $hash_password = password_hash($password, PASSWORD_DEFAULT);
         $db = new DbOperations;
-        $result = $db->createUser($name, $collegecode, $password);
+        $result = $db->createUser($name, $collegecode,$number, $hash_password);
 
         if ($result == USER_CREATED) {
             $message = array();
@@ -68,16 +69,17 @@ $app->get('/allusers', function (Request $request, Response $response) {
 });
 //USER LOGIN
 $app->post('/userlogin', function (Request $request, Response $response) {
-    if (!haveEmptyParameters(array('collegecode', 'password'),$request, $response)) {
+    if (!haveEmptyParameters(array('number', 'password'),$request, $response)) {
         $request_data = $request->getParsedBody();
-        $collegecode = $request_data['collegecode'];
+
+        $number = $request_data['number'];
         $password = $request_data['password'];
 
         $db = new DbOperations;
-        $result = $db->userLogin($collegecode, $password);
+        $result = $db->userLogin($number, $password);
         if ($result == USER_AUTHENTICATED) {
 
-            $user = $db->getUserByCode($password);
+            $user = $db->getUserByNumber($number);
             $response_data = array();
             $response_data['error'] = false;
             $response_data['message'] = 'Login Successful';

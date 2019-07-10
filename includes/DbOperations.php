@@ -16,11 +16,11 @@ class DbOperations
     /*  The Create Operation
          The function will insert a new user in our database
      */
-    public function createUser($name, $collegecode, $password)
+    public function createUser($name, $collegecode, $number, $password)
     {
-        if (!$this->isCodeExist($password)) {
-            $stmt = $this->con->prepare("INSERT INTO student (name, collegecode, password) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $name, $collegecode, $password);
+        if (!$this->isNumberExist($number)) {
+            $stmt = $this->con->prepare("INSERT INTO student (name, collegecode, number, password) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $name, $collegecode,$number, $password);
             if ($stmt->execute()) {
                 return USER_CREATED;
             } else {
@@ -36,10 +36,10 @@ class DbOperations
             and the password matches with the given or not 
             to authenticate the user accordingly    
         */
-        public function userLogin($collegecode, $password){
-            if($this->isCodeExist($password)){
-                $stored_password = $this->getUsersPasswordByCode($collegecode); 
-                if($password==$stored_password){
+        public function userLogin($number, $password){
+            if($this->isNumberExist($number)){
+                $hashed_password = $this->getUsersPasswordByNumber($number); 
+                if(password_verify($password, $hashed_password)){
                     return USER_AUTHENTICATED;
                 }else{
                     return USER_PASSWORD_DO_NOT_MATCH; 
@@ -54,9 +54,9 @@ class DbOperations
             The method is returning the password of a given user
             to verify the given password is correct or not
         */
-        private function getUsersPasswordByCode($collegecode){
-            $stmt = $this->con->prepare("SELECT password FROM student WHERE collegecode = ?");
-            $stmt->bind_param("s", $collegecode);
+        private function getUsersPasswordByNumber($number){
+            $stmt = $this->con->prepare("SELECT password FROM student WHERE number = ?");
+            $stmt->bind_param("s", $number);
             $stmt->execute(); 
             $stmt->bind_result($password);
             $stmt->fetch(); 
@@ -117,16 +117,17 @@ class DbOperations
 
         /*
             This function reads a specified user from database*/
-      public function getUserByCode($password){
-            $stmt = $this->con->prepare("SELECT name, collegecode FROM student WHERE password = ?");
-            $stmt->bind_param("s", $password);
+      public function getUserByNumber($number){
+            $stmt = $this->con->prepare("SELECT id, name, collegecode,number FROM student WHERE number = ?");
+            $stmt->bind_param("s", $number);
             $stmt->execute(); 
-            $stmt->bind_result($name, $collegecode);
+            $stmt->bind_result($id, $name, $collegecode, $number);
             $stmt->fetch(); 
             $user = array(); 
-            //$user['id'] = $id; 
+            $user['id'] = $id; 
             $user['name'] = $name; 
             $user['collegecode']=$collegecode; 
+            $user['number']=$number; 
             return $user; 
         }
 
@@ -183,10 +184,10 @@ public function getUserByEmail2($email){
     return $user; 
 }
 
-    private function isCodeExist($password)
+    private function isNumberExist($number)
     {
-        $stmt = $this->con->prepare("SELECT password FROM student WHERE password = ?");
-        $stmt->bind_param("s", $password);
+        $stmt = $this->con->prepare("SELECT id FROM student WHERE number = ?");
+        $stmt->bind_param("s", $number);
         $stmt->execute();
         $stmt->store_result();
         return $stmt->num_rows > 0;
