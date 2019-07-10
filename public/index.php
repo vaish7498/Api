@@ -400,6 +400,49 @@ $app->post('/createcollege', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+/////TABLE INSTITUTION
+$app->get('/showinstitution', function (Request $request, Response $response) {
+
+    
+    if(!haveEmptyParameters(array('Name'),$request,$response)){
+    
+        $request_data=$request->getParsedBody();
+        $Name=$request_data['Name'];
+        //$email=$request_data['email'];
+        //$id=$request_data['id'];
+        
+        $db=new DbOperations;
+        if($db->showInstitution($Name)){
+        $students=$db->showInstitution($Name);
+        $response_data=array();
+        $response_data['error']=false;
+        $response_data['user']=$students;
+        /*$user=$db->getUserByEmail($email);
+        $response_data['user']=$user;*/
+        
+        $response->write(json_encode($response_data));
+        
+        return $response
+                    ->withHeader('Content-type','application/json; charset=utf-8')
+                    ->withStatus(200);
+        }
+        else{
+            $response_data=array();
+            $response_data['error']=true;
+            $response_data['user']='failure';
+            /*$user=$db->getUserByEmail($email);
+            $response_data['user']=$user;*/
+            
+            $response->write(json_encode($response_data));
+            
+            return $response
+                        ->withHeader('Content-type','application/json; charset=utf-8')
+                        ->withStatus(200);
+        }
+    } return $response
+    ->withHeader('Content-type','application/json; charset=utf-8')
+    ->withStatus(200);
+});
 
 
 

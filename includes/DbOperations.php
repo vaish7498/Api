@@ -208,9 +208,30 @@ public function createCollege($name,$coursetype,$coursename,$fee,$location){
         return FAILURE;
     }
 }
+/*************************************TABLE INSTITUTION */
 
-
-
+public function showInstitution($Name){
+    $stmt = $this->con->prepare("SELECT * FROM institution where Name=?;");
+    $stmt->bind_param("s", $Name);
+            $stmt->execute(); 
+            $stmt->bind_result($id,$Name,$collegecode,$logo,$Type,$Address,$City,$State,$Email,$Number);
+            $students = array(); 
+            while($stmt->fetch()){ 
+                $student = array(); 
+                $student['id']=$id; 
+                $student['Name'] = $Name; 
+                $student['collegecode'] = $collegecode; 
+                $student['logo'] = $logo; 
+                $student['Type'] = $Type; 
+                $student['Address'] = $Address; 
+                $student['City'] = $City; 
+                $student['State'] = $State; 
+                $student['Email'] = $Email;
+                $student['Number'] = $Number;  
+                array_push($students, $student);
+            }             
+            return $students; 
+}
 
 }
 
